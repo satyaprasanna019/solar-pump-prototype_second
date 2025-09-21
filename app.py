@@ -1,74 +1,55 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import plotly.express as px
 
-# ---------------- Page Config ----------------
-st.set_page_config(page_title="DAAS Dashboard", layout="wide")
+# Page setup
+st.set_page_config(page_title="Solar Pump Dashboard", layout="wide")
 
-# ---------------- Sidebar Navigation ----------------
-st.sidebar.title("Navigate")
-page = st.sidebar.radio("Go to", ["Dashboard", "Billing & Credits", "Solar & Optimization"])
+st.title("⚡ Solar Pump Dashboard")
 
-# ---------------- Dashboard Page ----------------
-if page == "Dashboard":
-    st.title("DAAS Dashboard")
-    st.subheader("Dewatering Analytics & Automation")
-    st.write("Main Dashboard - Overview of operations...")
+# --- Fake Data (replace with Arduino/real data later) ---
+days = pd.date_range(start="2025-01-01", periods=15, freq="D")
+energy = np.random.randint(5, 20, size=15)   # kWh
+water = np.random.randint(100, 300, size=15) # Liters
 
-    # Example random data for visualization
-    st.write("### Pump Performance")
-    data = pd.DataFrame({
-        "Time": pd.date_range("2023-01-01", periods=10, freq="D"),
-        "Pump A": np.random.randint(50, 100, 10),
-        "Pump B": np.random.randint(40, 90, 10)
-    })
+df = pd.DataFrame({
+    "Date": days,
+    "Energy (kWh)": energy,
+    "Water (Liters)": water
+}).set_index("Date")
 
-    fig = px.line(data, x="Time", y=["Pump A", "Pump B"], title="Pump Performance Over Time")
-    st.plotly_chart(fig, use_container_width=True)
+# --- KPIs ---
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Energy", f"{df['Energy (kWh)'].sum()} kWh")
+col2.metric("Total Water Pumped", f"{df['Water (Liters)'].sum()} L")
+col3.metric("Avg Energy/Day", f"{df['Energy (kWh)'].mean():.2f} kWh")
 
-# ---------------- Billing Page ----------------
-elif page == "Billing & Credits":
-    st.title("Billing & Credits")
-    st.write("Billing information and credit usage will appear here.")
+st.divider()
 
-    # Example billing data
-    billing_data = pd.DataFrame({
-        "Month": ["Jan", "Feb", "Mar", "Apr"],
-        "Energy Cost ($)": [1200, 1100, 1300, 1250],
-        "Credits Used": [200, 180, 220, 210]
-    })
+# --- Graphs ---
+st.subheader("📊 Energy & Water Trends")
 
-    st.table(billing_data)
+tab1, tab2, tab3 = st.tabs(["Energy Trend", "Water Usage", "Comparison"])
 
-    fig = px.bar(billing_data, x="Month", y="Energy Cost ($)", title="Monthly Energy Costs")
-    st.plotly_chart(fig, use_container_width=True)
+with tab1:
+    st.line_chart(df["Energy (kWh)"], height=300)
 
-# ---------------- Solar Optimization Page ----------------
-elif page == "Solar & Optimization":
-    st.title("Solar & Optimization")
-    st.write("AI optimization recommendations and solar data will appear here.")
+with tab2:
+    st.area_chart(df["Water (Liters)"], height=300)
 
-    col1, col2 = st.columns(2)
+with tab3:
+    st.bar_chart(df, height=300)
 
-    with col1:
-        st.subheader("Optimize Pump C-3 Schedule")
-        st.write("💡 Potential savings: **$847/month**")
-        if st.button("Implement Pump Optimization"):
-            st.success("✅ Pump C-3 schedule optimization implemented. New schedule active at 11 PM.")
+st.divider()
 
-    with col2:
-        st.subheader("Battery Storage Optimization")
-        st.write("💡 Potential savings: **$425/month**")
-        if st.button("Implement Battery Optimization"):
-            st.success("✅ Battery storage optimization activated.")
+# --- Billing Simulation ---
+st.subheader("💰 Billing & Carbon Credits")
 
-    # Example solar efficiency chart
-    solar_data = pd.DataFrame({
-        "Day": range(1, 8),
-        "Efficiency (%)": np.random.randint(60, 95, 7)
-    })
+unit_rate = 5  # ₹ per kWh
+billing = df["Energy (kWh)"].sum() * unit_rate
+carbon_saving = df["Energy (kWh)"].sum() * 0.8  # assume 0.8kg CO₂ saved per kWh
 
-    fig = px.area(solar_data, x="Day", y="Efficiency (%)", title="Solar Panel Efficiency Over a Week")
-    st.plotly_chart(fig, use_container_width=True)
+st.write(f"**Estimated Bill:** ₹{billing:.2f}")
+st.write(f"**Carbon Credits Saved:** {carbon_saving:.2f} kg CO₂")
+
+st.success("✅ Dashboard ready. Graphs & metrics working smoothly!")
