@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Page Config
 st.set_page_config(page_title="DAAS Dashboard", layout="wide")
@@ -25,23 +24,14 @@ if page == "Dashboard":
         "Pump": ["Pump A", "Pump B", "Pump C", "Pump D"],
         "Energy (kWh)": [420, 380, 500, 450]
     })
-
-    fig, ax = plt.subplots()
-    ax.bar(pump_data["Pump"], pump_data["Energy (kWh)"], color="skyblue")
-    ax.set_ylabel("Energy (kWh)")
-    ax.set_title("Pump Energy Consumption")
-    st.pyplot(fig)
+    st.bar_chart(pump_data.set_index("Pump"))
 
     # Example energy trend
     st.subheader("Energy Usage Trend")
     dates = pd.date_range("2025-09-01", periods=10)
     usage = np.random.randint(300, 600, size=10)
-
-    fig2, ax2 = plt.subplots()
-    ax2.plot(dates, usage, marker="o", color="green")
-    ax2.set_ylabel("kWh")
-    ax2.set_title("Daily Energy Usage")
-    st.pyplot(fig2)
+    usage_data = pd.DataFrame({"Date": dates, "Usage (kWh)": usage})
+    st.line_chart(usage_data.set_index("Date"))
 
 # ------------------ BILLING & CREDITS ------------------
 elif page == "Billing & Credits":
@@ -52,27 +42,19 @@ elif page == "Billing & Credits":
     col1.metric("Current Month Bill", "$1,245")
     col2.metric("Credits Remaining", "320 kWh")
 
-    # Example monthly bill trend
+    # Monthly billing trend
     st.subheader("Monthly Billing Trend")
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"]
     bills = [1200, 1100, 1250, 1350, 1400, 1300, 1280, 1245]
+    billing_data = pd.DataFrame({"Month": months, "Bill ($)": bills})
+    st.line_chart(billing_data.set_index("Month"))
 
-    fig3, ax3 = plt.subplots()
-    ax3.plot(months, bills, marker="o", color="red")
-    ax3.set_ylabel("Bill Amount ($)")
-    ax3.set_title("Billing Over Time")
-    st.pyplot(fig3)
-
-    # Example credits usage
+    # Credits usage
     st.subheader("Credit Usage")
-    credits = [400, 380, 360, 340, 330, 320]
     days = ["Day 1", "Day 5", "Day 10", "Day 15", "Day 20", "Day 25"]
-
-    fig4, ax4 = plt.subplots()
-    ax4.bar(days, credits, color="orange")
-    ax4.set_ylabel("Credits (kWh)")
-    ax4.set_title("Credits Usage This Month")
-    st.pyplot(fig4)
+    credits = [400, 380, 360, 340, 330, 320]
+    credits_data = pd.DataFrame({"Day": days, "Credits (kWh)": credits})
+    st.bar_chart(credits_data.set_index("Day"))
 
 # ------------------ SOLAR & OPTIMIZATION ------------------
 elif page == "Solar & Optimization":
